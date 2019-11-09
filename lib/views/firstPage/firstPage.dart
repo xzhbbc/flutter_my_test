@@ -1,5 +1,6 @@
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_boost/flutter_boost.dart';
 import 'package:my_flutter_app/routers/application.dart';
 import 'package:my_flutter_app/routers/routers.dart';
 
@@ -88,8 +89,11 @@ class FirstPageState extends State<FirstPage>
                   GestureDetector(
                     onTap: (){
 //                      print('${Application.router}');
-                      Application.router.navigateTo(context, '${Routes.second}',
-                          transition: TransitionType.nativeModal);
+                      // Application.router.navigateTo(context, '${Routes.second}',
+                      //     transition: TransitionType.nativeModal);
+                      // Fl
+                      FlutterBoost.singleton
+                          .open("flutterbus://nativeFirstPage");
                     },
                     child: Image.network(
                       'http://b-ssl.duitang.com/uploads/item/201604/23/20160423185321_K2ueY.jpeg',
