@@ -2,7 +2,7 @@ import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:my_flutter_app/routers/application.dart' show Application;
 import 'package:my_flutter_app/routers/routers.dart';
-import 'package:my_flutter_app/views/home/home.dart';
+import 'package:my_flutter_app/views/bottomHomeView/bottomHomeView.dart';
 
 void main() => runApp(MyApp());
 
@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new Scaffold(body: AppPage(),),
+      home: new Scaffold(body: BottomHomeView(),),
       onGenerateRoute: Application.router.generator,
     );
   }
@@ -103,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Text(
               '测试一下ss'
-            )
+            ),
           ],
         ),
       ),
