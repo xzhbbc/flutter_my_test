@@ -62,6 +62,6 @@ public class FlutterPageActivity extends NewBoostFlutterActivity {
 
 
     public void goToFlutter(View view) {
-        PageRouter.openPageByUrl(this, PageRouter.FLUTTER_FIRST_PAGE_URL);
+        PageRouter.openPageByUrl(this, "first");
     }
 }
