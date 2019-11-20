@@ -1,6 +1,10 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:my_flutter_app/routers/application.dart';
 import 'package:my_flutter_app/views/homePage/home.dart';
+import 'package:my_flutter_app/views/homePage/news.dart';
+import 'package:my_flutter_app/views/homePage/user.dart';
 
 class BottomHomeView extends StatefulWidget {
   BottomHomeView({Key key}) : super(key: key);
@@ -31,6 +35,11 @@ class BottomHomeViewState extends State<BottomHomeView>
 
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.instance = ScreenUtil(width: 750, height: 1334)..init(context);
+    final size = MediaQuery.of(context).size;
+    Application.screenWidth = size.width;
+    Application.screenHeight = size.height;
+    Application.statusBarHeight = MediaQuery.of(context).padding.top;
     return Scaffold(
         bottomNavigationBar: CurvedNavigationBar(
           backgroundColor: colors[currentIndex],
@@ -58,9 +67,11 @@ class BottomHomeViewState extends State<BottomHomeView>
             ),
             Container(
               color: colors[1],
+              child: News(),
             ),
             Container(
               color: colors[2],
+              child: User(),
             )
           ],
         ));

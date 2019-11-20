@@ -1,14 +1,26 @@
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_boost/flutter_boost.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:my_flutter_app/providers/data_info.dart';
 import 'package:my_flutter_app/routers/application.dart' show Application;
 import 'package:my_flutter_app/routers/routers.dart';
+import 'package:my_flutter_app/utils/net_utils.dart';
 import 'package:my_flutter_app/views/bottomHomeView/bottomHomeView.dart';
 import 'package:my_flutter_app/views/flutterBoost/firstRouteWidget.dart';
 import 'package:my_flutter_app/views/flutterBoost/secondRouteWidget.dart';
 import 'package:my_flutter_app/views/home/home.dart';
+import 'package:provider/provider.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(
+    ChangeNotifierProvider(builder: (context) => DataInfo(), child: MyApp()));
+// void main() => runApp(
+//   MultiProvider(providers: [
+//     ChangeNotifierProvider(
+//       builder: (context) => DataInfo()
+//     )
+//   ],child: MyApp(),)
+// );
 
 class MyApp extends StatefulWidget {
   // This firstPage is the root of your application.
@@ -27,6 +39,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    NetUtils.init();
     final router = new Router();
     Routes.configureRoutes(router);
     // 这里设置项目环境
@@ -60,8 +73,8 @@ class _MyAppState extends State<MyApp> {
 
   void _onRoutePushed(
       String pageName, String uniqueId, Map params, Route route, Future _) {
-        print(pageName);
-      }
+    print(pageName);
+  }
 }
 
 class BottomNavigationBarFullDefault extends StatefulWidget {

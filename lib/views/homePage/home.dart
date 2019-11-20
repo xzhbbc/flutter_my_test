@@ -2,10 +2,14 @@ import 'package:fluro/fluro.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:my_flutter_app/model/movie.dart';
 import 'package:my_flutter_app/routers/application.dart';
 import 'package:my_flutter_app/routers/routers.dart';
+import 'package:my_flutter_app/utils/navigator_util.dart';
 import 'package:my_flutter_app/utils/net_utils.dart';
 import 'package:my_flutter_app/views/movieDetail/movieDetail.dart';
+import 'package:my_flutter_app/widgets/widget_future_builder.dart';
+import 'package:my_flutter_app/widgets/widget_future_load_builder.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -36,16 +40,22 @@ class _HomePageState extends State<HomePage>
     // );
     // // 定义动画
     // animation = Tween<double>(begin: 1, end: 0.98).animate(controller);
-    getData('');
+    // getData('');
     //给_controller添加监听
     _controller.addListener(() {
       //判断是否滑动到了页面的最底部
       if (_controller.position.pixels == _controller.position.maxScrollExtent) {
-        if (isReflash)
-          return setState(() {
-            isReflash = true;
+        // if (isReflash)
+        //   return setState(() {
+        //     isReflash = true;
+        //   });
+        if (cardList != null) {
+          setState(() {
+            start += 10;
+            cardList = cardList;
           });
-        getData('last');
+        }
+        // getData('last');
       }
     });
   }
@@ -219,7 +229,7 @@ class _HomePageState extends State<HomePage>
     return cardListWidget;
   }
 
-  Widget buildListView() {
+  Widget buildListView(cardList) {
     if (cardList == null) {
       return Text('暂无数据');
     }
@@ -262,27 +272,6 @@ class _HomePageState extends State<HomePage>
             );
           }
         }
-
-        if (cardList[i]['genres'] != null) {
-          if (cardList[i]['genres'] is List) {
-            var typeList = cardList[i]['genres'];
-            for (int j = 0; j < typeList.length; j++) {
-              if (typeMeg == '') {
-                typeMeg += typeList[j];
-              } else {
-                typeMeg += ' ' + typeList[j];
-              }
-            }
-            cardList[i]['type'] = typeMeg;
-          }
-        }
-        if (cardList[i]['images'] != null) {
-          var smImg = cardList[i]['images']['small'];
-          if (smImg != null && smImg != '') {
-            img = smImg;
-          }
-        }
-        cardList[i]['img'] = img;
         var controller = AnimationController(
           vsync: this,
           duration: const Duration(milliseconds: 200),
@@ -298,28 +287,35 @@ class _HomePageState extends State<HomePage>
             controller.reverse(); // cancel的时候回弹动画
           },
           onTap: () {
-            Navigator.push(
+            NavigatorUtil.goMovieDetail(
               context,
-              MaterialPageRoute(
-                builder: (_) => MovieDetail(
-                  id: cardList[i]['id'],
-                  title: cardList[i]['title'],
-                  type: cardList[i]['type'],
-                  img: cardList[i]['img'],
-                ),
-                // settings: RouteSettings(isInitialRoute: true),
-                fullscreenDialog: true,
-              ),
+              id: cardList[i].id,
+              title: cardList[i].title,
+              type: cardList[i].type,
+              img: cardList[i].img,
             );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(
+            //     builder: (_) => MovieDetail(
+            //       id: cardList[i]['id'],
+            //       title: cardList[i]['title'],
+            //       type: cardList[i]['type'],
+            //       img: cardList[i]['img'],
+            //     ),
+            //     // settings: RouteSettings(isInitialRoute: true),
+            //     fullscreenDialog: true,
+            //   ),
+            // );
           },
           child: ScaleTransition(
               scale: animation,
               child: Hero(
-                tag: 'hero${cardList[i]['id']}',
+                tag: 'hero${cardList[i].id}',
                 child: Card(
                   clipBehavior: Clip.antiAlias,
-                  elevation: 20.0,
-                  margin: const EdgeInsets.all(5),
+                  elevation: 10.0,
+                  margin: const EdgeInsets.all(20),
                   color: Colors.green,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20.0)),
@@ -329,21 +325,31 @@ class _HomePageState extends State<HomePage>
                     children: <Widget>[
                       ListTile(
                         title: new Text(
-                          cardList[i]['title'],
+                          cardList[i].title,
                           style: TextStyle(color: Colors.white, fontSize: 20),
                         ),
                         subtitle: Text(
-                          '分类：$typeMeg',
+                          '分类：${cardList[i].type}',
                           style: TextStyle(color: Colors.yellow, fontSize: 16),
                         ),
                       ),
-                      new Padding(
-                        padding: EdgeInsets.only(bottom: 10),
-                        child: Image.network(
-                          img,
-                          fit: BoxFit.contain,
+                      SizedBox(
+                        height: 300,
+                        child: new Padding(
+                          padding: EdgeInsets.only(bottom: 10),
+                          child: Image.network(
+                            cardList[i].img,
+                            fit: BoxFit.contain,
+                          ),
                         ),
                       ),
+                      // new Padding(
+                      //   padding: EdgeInsets.only(bottom: 10),
+                      //   child: Image.network(
+                      //     cardList[i].img,
+                      //     fit: BoxFit.contain,
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -355,29 +361,128 @@ class _HomePageState extends State<HomePage>
     return list;
   }
 
+  Widget buildListItem(data) {
+    Widget item;
+    var controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    var animation = Tween<double>(begin: 1, end: 0.98).animate(controller);
+    item = GestureDetector(
+      onPanDown: (details) {
+        // print('onPanDown');
+        controller.forward(); // 点击的时候播放动画
+      },
+      onPanCancel: () {
+        // print('onPanCancel');
+        controller.reverse(); // cancel的时候回弹动画
+      },
+      onTap: () {
+        NavigatorUtil.goMovieDetail(
+          context,
+          id: data.id,
+          title: data.title,
+          type: data.type,
+          img: data.img,
+        );
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (_) => MovieDetail(
+        //       id: cardList[i]['id'],
+        //       title: cardList[i]['title'],
+        //       type: cardList[i]['type'],
+        //       img: cardList[i]['img'],
+        //     ),
+        //     // settings: RouteSettings(isInitialRoute: true),
+        //     fullscreenDialog: true,
+        //   ),
+        // );
+      },
+      child: ScaleTransition(
+          scale: animation,
+          child: Hero(
+            tag: 'hero${data.id}',
+            child: Card(
+              clipBehavior: Clip.antiAlias,
+              elevation: 10.0,
+              margin: const EdgeInsets.all(20),
+              color: Colors.green,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0)),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  ListTile(
+                    title: new Text(
+                      data.title,
+                      style: TextStyle(color: Colors.white, fontSize: 20),
+                    ),
+                    subtitle: Text(
+                      '分类：${data.type}',
+                      style: TextStyle(color: Colors.yellow, fontSize: 16),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 300,
+                    child: new Padding(
+                      padding: EdgeInsets.only(bottom: 10),
+                      child: Image.network(
+                        data.img,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                  // new Padding(
+                  //   padding: EdgeInsets.only(bottom: 10),
+                  //   child: Image.network(
+                  //     cardList[i].img,
+                  //     fit: BoxFit.contain,
+                  //   ),
+                  // ),
+                ],
+              ),
+            ),
+          )),
+    );
+    return item;
+  }
+
+  void onHeaderRefresh() {
+    // 注意这里不能用setState
+    start = 0;
+  }
+
+  void onFooterRefresh() {
+    setState(() {
+      start += 10;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Container(
-          alignment: Alignment.center,
-          width: MediaQuery.of(context).size.width,
-          height: 200,
-          child: new Swiper(
-              itemBuilder: (BuildContext context, int index) {
-                return new Image.network(
-                  "http://pic34.nipic.com/20131030/2455348_194508648000_2.jpg",
-                  fit: BoxFit.fill,
-                );
-              },
-              itemCount: 10,
-              itemWidth: MediaQuery.of(context).size.width - 50,
-              itemHeight: 200.0,
-              layout: SwiperLayout.TINDER,
-              scrollDirection: Axis.vertical),
-        ),
+        // Container(
+        //   alignment: Alignment.center,
+        //   width: MediaQuery.of(context).size.width,
+        //   height: 200,
+        //   child: new Swiper(
+        //       itemBuilder: (BuildContext context, int index) {
+        //         return new Image.network(
+        //           "http://pic34.nipic.com/20131030/2455348_194508648000_2.jpg",
+        //           fit: BoxFit.fill,
+        //         );
+        //       },
+        //       itemCount: 10,
+        //       itemWidth: MediaQuery.of(context).size.width - 50,
+        //       itemHeight: 200.0,
+        //       layout: SwiperLayout.TINDER,
+        //       scrollDirection: Axis.vertical),
+        // ),
         Container(
           margin: EdgeInsets.all(5),
           child: Column(
@@ -408,11 +513,29 @@ class _HomePageState extends State<HomePage>
         Expanded(
           child: Container(
             padding: const EdgeInsets.only(bottom: 13),
-            child: new RefreshIndicator(
-              onRefresh: _onRefresh,
-              child: buildListView(),
+            // child: new RefreshIndicator(
+            //   onRefresh: _onRefresh,
+            //   child: buildListView(),
+            // ),
+            child: LoadMoreFutureBuilder(
+              params: {'start': start},
+              futureFunc: NetUtils.getMovie,
+              buildItem: buildListItem,
+              onHeaderRefresh: onHeaderRefresh,
+              onFooterRefresh: onFooterRefresh,
             ),
-
+            // child: CustomFutureBuilder<MovieData>(
+            //   oldData: cardList,
+            //   params: {'start': start},
+            //   futureFunc: NetUtils.getMovie,
+            //   builder: (context, snapshot) {
+            //     var data = snapshot.data;
+            //     return new RefreshIndicator(
+            //       onRefresh: _onRefresh,
+            //       child: buildListView(data),
+            //     );
+            //   },
+            // ),
             //     GridView(
             //   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             //     // 列数
