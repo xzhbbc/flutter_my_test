@@ -62,15 +62,16 @@ class _MyAppState extends State<MyApp> {
       title: 'My First App',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        platform: TargetPlatform.iOS,
       ),
+      builder: FlutterBoost.init(),
       home: new Scaffold(
-        body: BottomHomeView(),
+        body: AppPage(),
       ),
-      onGenerateRoute: Application.router.generator,
-      builder: FlutterBoost.init(postPush: _onRoutePushed),
+      // onGenerateRoute: Application.router.generator,
     );
   }
-
+  //  BottomHomeView(),
   void _onRoutePushed(
       String pageName, String uniqueId, Map params, Route route, Future _) {
     print(pageName);

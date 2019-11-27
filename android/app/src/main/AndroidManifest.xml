@@ -6,7 +6,6 @@
         android:name=".MyApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="my_flutter_app">
-        <activity android:name=".Main2Activity"></activity>
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
